@@ -4,13 +4,6 @@
 
 namespace gpu {
 
-auto synchronise() -> void {
-	auto err = hipDeviceSynchronize();
-	if (err != hipSuccess) {
-		throw new std::runtime_error("hipDeviceSynchronize failed");
-	}
-}
-
 template <typename T>
 	requires std::is_trivially_copyable_v<T>
 class device_unique_ptr;
@@ -201,6 +194,13 @@ auto device_memset(device_span<T> device, int val) -> void {
 	auto err = hipMemset(device.data_, val, device.size_ * sizeof(T));
 	if (err != hipSuccess) {
 		throw new std::runtime_error("hipMemset failed");
+	}
+}
+
+auto synchronise() -> void {
+	auto err = hipDeviceSynchronize();
+	if (err != hipSuccess) {
+		throw new std::runtime_error("hipDeviceSynchronize failed");
 	}
 }
 
