@@ -91,37 +91,18 @@ public:
 	friend auto copy_to_device(
 		const std::span<U> host,
 		const device_span<U> device
-	) -> void {
-		U *host_   = host.data();
-		U *device_ = device.data_;
-		auto err   = hipMemcpy(device_, host_, host.size() * sizeof(U), hipMemcpyHostToDevice);
-		if (err != hipSuccess) {
-			throw new std::runtime_error("hipMemcpy (to device) failed");
-		}
-	}
+	) -> void;
 
 	template <typename U>
 		requires std::is_trivially_copyable_v<U>
 	friend auto copy_to_host(
 		const std::span<U> host,
 		const device_span<U> device
-	) -> void {
-		U *host_   = host.data();
-		U *device_ = device.data_;
-		auto err   = hipMemcpy(host_, device_, host.size() * sizeof(U), hipMemcpyDeviceToHost);
-		if (err != hipSuccess) {
-			throw new std::runtime_error("hipMemcpy (to host) failed");
-		}
-	}
+	) -> void;
 
 	template <typename U>
 		requires std::is_trivially_copyable_v<U>
-	friend auto device_memset(device_span<U> device, int val) -> void {
-		auto err = hipMemset(device.data_, val, device.size_ * sizeof(U));
-		if (err != hipSuccess) {
-			throw new std::runtime_error("hipMemset failed");
-		}
-	}
+	friend auto device_memset(device_span<U> device, int val) -> void;
 
 	friend class device_unique_ptr<T>;
 };
@@ -186,22 +167,41 @@ private:
 	friend class device_span<T>;
 };
 
-template <typename U>
-	requires std::is_trivially_copyable_v<U>
+template <typename T>
+	requires std::is_trivially_copyable_v<T>
 auto copy_to_device(
-	const std::span<U> host,
-	const device_span<U> device
-) -> void;
+	const std::span<T> host,
+	const device_span<T> device
+) -> void {
+	T *host_   = host.data();
+	T *device_ = device.data_;
+	auto err   = hipMemcpy(device_, host_, host.size_bytes(), hipMemcpyHostToDevice);
+	if (err != hipSuccess) {
+		throw new std::runtime_error("hipMemcpy (to device) failed");
+	}
+}
 
-template <typename U>
-	requires std::is_trivially_copyable_v<U>
+template <typename T>
+	requires std::is_trivially_copyable_v<T>
 auto copy_to_host(
-	const std::span<U> host,
-	const device_span<U> device
-) -> void;
+	const std::span<T> host,
+	const device_span<T> device
+) -> void {
+	T *host_   = host.data();
+	T *device_ = device.data_;
+	auto err   = hipMemcpy(host_, device_, host.size_bytes(), hipMemcpyDeviceToHost);
+	if (err != hipSuccess) {
+		throw new std::runtime_error("hipMemcpy (to host) failed");
+	}
+}
 
-template <typename U>
-	requires std::is_trivially_copyable_v<U>
-auto device_memset(device_span<U> device, int val) -> void;
+template <typename T>
+	requires std::is_trivially_copyable_v<T>
+auto device_memset(device_span<T> device, int val) -> void {
+	auto err = hipMemset(device.data_, val, device.size_ * sizeof(T));
+	if (err != hipSuccess) {
+		throw new std::runtime_error("hipMemset failed");
+	}
+}
 
 }
