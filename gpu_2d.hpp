@@ -137,7 +137,7 @@ public:
 		: device_span2<T>(nullptr, width, height, 0)
 	{
 		if (width <= 0 || height <= 0) {
-			return;
+			throw std::invalid_argument("Width and height must be positive");
 		}
 
 		size_t pitch_bytes = 0;
