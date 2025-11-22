@@ -79,6 +79,10 @@ public:
 		return this->data_[get_index(x, y, z)];
 	}
 
+	[[nodiscard]] constexpr auto in_bounds(size_t i, size_t j, size_t k) const -> bool {
+		return i < width_ && j < height_ && k < depth_;
+	}
+
 	[[nodiscard]] __host__ __device__ constexpr auto get_index(size_type x, size_type y, size_type z) const -> size_type {
 #ifndef __HIP_DEVICE_COMPILE__
 		if (x >= width_ || y >= height_ || z >= depth_) {

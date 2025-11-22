@@ -64,6 +64,8 @@ public:
 
 	[[nodiscard]] __device__ constexpr auto operator[](size_t i) const -> T const & { return this->data_[i]; }
 
+	[[nodiscard]]            constexpr auto in_bounds(size_t i) const -> bool { return i < size_; }
+
 	[[nodiscard]] __host__ __device__ constexpr auto subspan(
 		size_type offset,
 		size_type count
