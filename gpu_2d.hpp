@@ -16,7 +16,7 @@ public:
 	using typename base::size_type;
 	using typename base::pointer;
 
-private:
+protected:
 	size_type width_  = 0;
 	size_type height_ = 0;
 	size_type pitch_  = 0;

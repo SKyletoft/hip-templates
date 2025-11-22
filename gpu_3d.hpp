@@ -15,7 +15,7 @@ public:
 	using typename base::pointer;
 	using typename base::const_pointer;
 
-private:
+protected:
 	size_type width_  = 0;
 	size_type height_ = 0;
 	size_type depth_  = 0;
