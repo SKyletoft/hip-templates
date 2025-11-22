@@ -101,6 +101,26 @@ public:
 			pitch_
 		);
 	}
+
+	template <typename U>
+		requires std::is_trivially_copyable_v<U>
+	friend auto copy_to_device(
+		const std::span<U> host,
+		const device_span2<U> device
+	) -> void;
+
+	template <typename U>
+		requires std::is_trivially_copyable_v<U>
+	friend auto copy_to_host(
+		const std::span<U> host,
+		const device_span2<U> device
+	) -> void;
+
+	template <typename U>
+		requires std::is_trivially_copyable_v<U>
+	friend auto device_memset(device_span2<U> device, int val) -> void;
+
+	friend class device_unique_ptr2<T>;
 };
 
 template <typename T>
