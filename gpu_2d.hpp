@@ -222,6 +222,10 @@ auto copy_to_device(
 	const std::span<U> host,
 	const device_span2<U> device
 ) -> void {
+	if (host.size_bytes() != device.size_bytes()) {
+		throw std::invalid_argument("hipMemcpy2D (device to host) failed, differing sizes");
+	}
+
 	const U *host_ptr = host.data();
 	U *device_ptr = device.data_;
 
@@ -246,6 +250,10 @@ auto copy_to_host(
 	const std::span<U> host,
 	const device_span2<U> device
 ) -> void {
+	if (host.size_bytes() != device.size_bytes()) {
+		throw std::invalid_argument("hipMemcpy2D (host to device) failed, differing sizes");
+	}
+
 	U *host_ptr = host.data();
 	const U *device_ptr = device.data_;
 
