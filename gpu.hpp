@@ -190,11 +190,14 @@ auto copy_to_device(
 	const std::span<T> host,
 	const device_span<T> device
 ) -> void {
+	if (host.size_bytes() != device.size_bytes()) {
+		throw new std::runtime_error("hipMemcpy (host to device) failed, differing sizes");
+	}
 	T *host_   = host.data();
 	T *device_ = device.data_;
 	auto err   = hipMemcpy(device_, host_, host.size_bytes(), hipMemcpyHostToDevice);
 	if (err != hipSuccess) {
-		throw new std::runtime_error("hipMemcpy (to device) failed");
+		throw new std::runtime_error("hipMemcpy (host to device) failed");
 	}
 }
 
@@ -204,11 +207,14 @@ auto copy_to_host(
 	const std::span<T> host,
 	const device_span<T> device
 ) -> void {
+	if (host.size_bytes() != device.size_bytes()) {
+		throw new std::runtime_error("hipMemcpy (device to host) failed, differing sizes");
+	}
 	T *host_   = host.data();
 	T *device_ = device.data_;
 	auto err   = hipMemcpy(host_, device_, host.size_bytes(), hipMemcpyDeviceToHost);
 	if (err != hipSuccess) {
-		throw new std::runtime_error("hipMemcpy (to host) failed");
+		throw new std::runtime_error("hipMemcpy (device to host) failed");
 	}
 }
 
