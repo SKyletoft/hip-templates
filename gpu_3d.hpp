@@ -187,7 +187,8 @@ public:
 
 		this->data_ = static_cast<pointer>(pitched_ptr.ptr);
 		this->pitch_ = pitched_ptr.pitch / sizeof(T);
-		this->slice_pitch_ = (pitched_ptr.pitch / sizeof(T)) * height;
+		this->slice_pitch_ = this->pitch_ * height;
+		this->size_ = this->slice_pitch_ * depth;
 	}
 
 	device_unique_ptr3(const device_unique_ptr3 &) = delete;

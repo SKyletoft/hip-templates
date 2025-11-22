@@ -155,6 +155,7 @@ public:
 		}
 
 		this->pitch_ = pitch_bytes / sizeof(T);
+		this->size_ = this->pitch_ * height;
 	}
 
 	device_unique_ptr2(const device_unique_ptr2 &) = delete;
