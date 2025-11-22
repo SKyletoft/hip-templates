@@ -85,7 +85,7 @@ public:
 
 template <typename T>
 	requires std::is_trivially_copyable_v<T>
-class device_unique_ptr2 : private device_span2<T> {
+class device_unique_ptr2 : public device_span2<T> {
 public:
 	using base = device_span2<T>;
 	using typename base::size_type;

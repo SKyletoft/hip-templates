@@ -109,7 +109,7 @@ public:
 
 template <typename T>
 	requires std::is_trivially_copyable_v<T>
-class device_unique_ptr : private device_span<T> {
+class device_unique_ptr : public device_span<T> {
 public:
 	device_unique_ptr() noexcept = default;
 
