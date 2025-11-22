@@ -56,12 +56,12 @@ public:
 	[[nodiscard]] constexpr auto height() const noexcept -> size_type { return height_; }
 	[[nodiscard]] constexpr auto pitch() const noexcept -> size_type { return pitch_; }
 
-	[[nodiscard]] __device__ constexpr auto operator()(size_type x, size_type y) -> T& {
 		return this->data_[y * pitch_ + x];
+	[[nodiscard]] __device__ constexpr auto operator[](size_type x, size_type y) -> T& {
 	}
 
-	[[nodiscard]] __device__ constexpr auto operator()(size_type x, size_type y) const -> const T& {
 		return this->data_[y * pitch_ + x];
+	[[nodiscard]] __device__ constexpr auto operator[](size_type x, size_type y) const -> const T& {
 	}
 
 	[[nodiscard]] constexpr auto row(size_type y) const noexcept -> device_span<T> {
