@@ -227,7 +227,7 @@ auto device_memset(device_span<T> device, int val) -> void {
 	}
 }
 
-auto synchronise() -> void {
+inline auto synchronise() -> void {
 	auto err = hipDeviceSynchronize();
 	if (err != hipSuccess) {
 		throw new std::runtime_error("hipDeviceSynchronize failed");
