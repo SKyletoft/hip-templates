@@ -34,8 +34,8 @@ public:
 
 	constexpr device_span(const device_unique_ptr<std::remove_const_t<T>> &ptr) noexcept
 		requires std::is_const_v<T>
-		: data_(ptr.get())
-		, size_(ptr.size())
+		: data_(ptr.data_)
+		, size_(ptr.size_)
 	{}
 
 	constexpr device_span(device_unique_ptr<std::remove_const_t<T>> &ptr) noexcept
@@ -64,18 +64,33 @@ public:
 
 	[[nodiscard]] __device__ constexpr auto operator[](size_t i) const -> T const & { return this->data_[i]; }
 
-	[[nodiscard]] constexpr auto subspan(
+	[[nodiscard]] __host__ __device__ constexpr auto subspan(
 		size_type offset,
 		size_type count
-	) const noexcept -> device_span<T> {
+	) const -> device_span<T> {
+#ifndef __HIP_DEVICE_COMPILE__
+		if ((offset + count) > size_) {
+			throw std::out_of_range("Out of bounds subspan");
+		}
+#endif
 		return device_span<T>(data_ + offset, count);
 	}
 
-	[[nodiscard]] constexpr auto first(size_type count) const noexcept -> device_span<T> {
+	[[nodiscard]] constexpr auto first(size_type count) const -> device_span<T> {
+#ifndef __HIP_DEVICE_COMPILE__
+		if (count > size_) {
+			throw std::out_of_range("Count exceeds span size in first");
+		}
+#endif
 		return device_span<T>(data_, count);
 	}
 
-	[[nodiscard]] constexpr auto last(size_type count) const noexcept -> device_span<T> {
+	[[nodiscard]] constexpr auto last(size_type count) const -> device_span<T> {
+#ifndef __HIP_DEVICE_COMPILE__
+		if (count > size_) {
+			throw std::out_of_range("Count exceeds span size in last");
+		}
+#endif
 		return device_span<T>(data_ + (size_ - count), count);
 	}
 
@@ -117,7 +132,7 @@ public:
 		: device_span<T>(nullptr, n)
 	{
 		if (n <= 0) {
-			return;
+			throw std::invalid_argument("Size must be positive");
 		}
 
 		hipError_t err = hipMalloc(&this->data_, n * sizeof(T));
@@ -174,13 +189,13 @@ auto memcpy(
 	const device_span<T> src
 ) -> void {
 	if (dest.size_bytes() != src.size_bytes()) {
-		throw new std::runtime_error("hipMemcpy (device to device) failed, differing sizes");
+		throw std::invalid_argument("hipMemcpy (device to device) failed, differing sizes");
 	}
 	T *from = src.data_;
 	T *to = dest.data_;
-	auto err   = hipMemcpy(to, from, dest.size_bytes(), hipMemcpyDeviceToDevice);
+	auto err = hipMemcpy(to, from, dest.size_bytes(), hipMemcpyDeviceToDevice);
 	if (err != hipSuccess) {
-		throw new std::runtime_error("hipMemcpy (to device) failed");
+		throw std::runtime_error("hipMemcpy (device to device) failed");
 	}
 }
 
@@ -191,13 +206,13 @@ auto copy_to_device(
 	const device_span<T> device
 ) -> void {
 	if (host.size_bytes() != device.size_bytes()) {
-		throw new std::runtime_error("hipMemcpy (host to device) failed, differing sizes");
+		throw std::invalid_argument("hipMemcpy (to device) failed, differing sizes");
 	}
 	T *host_   = host.data();
 	T *device_ = device.data_;
 	auto err   = hipMemcpy(device_, host_, host.size_bytes(), hipMemcpyHostToDevice);
 	if (err != hipSuccess) {
-		throw new std::runtime_error("hipMemcpy (host to device) failed");
+		throw std::runtime_error("hipMemcpy (to device) failed");
 	}
 }
 
@@ -208,13 +223,13 @@ auto copy_to_host(
 	const device_span<T> device
 ) -> void {
 	if (host.size_bytes() != device.size_bytes()) {
-		throw new std::runtime_error("hipMemcpy (device to host) failed, differing sizes");
+		throw std::invalid_argument("hipMemcpy (to host) failed, differing sizes");
 	}
 	T *host_   = host.data();
 	T *device_ = device.data_;
 	auto err   = hipMemcpy(host_, device_, host.size_bytes(), hipMemcpyDeviceToHost);
 	if (err != hipSuccess) {
-		throw new std::runtime_error("hipMemcpy (device to host) failed");
+		throw std::runtime_error("hipMemcpy (to host) failed");
 	}
 }
 
@@ -223,14 +238,14 @@ template <typename T>
 auto device_memset(device_span<T> device, int val) -> void {
 	auto err = hipMemset(device.data_, val, device.size_ * sizeof(T));
 	if (err != hipSuccess) {
-		throw new std::runtime_error("hipMemset failed");
+		throw std::runtime_error("hipMemset failed");
 	}
 }
 
 inline auto synchronise() -> void {
 	auto err = hipDeviceSynchronize();
 	if (err != hipSuccess) {
-		throw new std::runtime_error("hipDeviceSynchronize failed");
+		throw std::runtime_error("hipDeviceSynchronize failed");
 	}
 }
 
