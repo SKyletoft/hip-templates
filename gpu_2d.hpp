@@ -6,6 +6,10 @@ namespace gpu {
 
 template <typename T>
 	requires std::is_trivially_copyable_v<T>
+class device_unique_ptr2;
+
+template <typename T>
+	requires std::is_trivially_copyable_v<T>
 class device_span2 : public device_span<T> {
 public:
 	using base = device_span<T>;
@@ -30,6 +34,22 @@ public:
 		, width_(width)
 		, height_(height)
 		, pitch_(pitch)
+	{}
+
+	constexpr device_span2(const device_unique_ptr2<std::remove_const_t<T>> &ptr) noexcept
+		requires std::is_const_v<T>
+		: base(ptr.data_, ptr.width_ * ptr.height_)
+		, width_(ptr.width_)
+		, height_(ptr.height_)
+		, pitch_(ptr.pitch_)
+	{}
+
+	constexpr device_span2(device_unique_ptr2<std::remove_const_t<T>> &ptr) noexcept
+		requires (!std::is_const_v<T>)
+		: base(ptr.data_, ptr.width_ * ptr.height_)
+		, width_(ptr.width_)
+		, height_(ptr.height_)
+		, pitch_(ptr.pitch_)
 	{}
 
 	[[nodiscard]] constexpr auto width() const noexcept -> size_type { return width_; }
