@@ -81,6 +81,13 @@ public:
 
 	template <typename U>
 		requires std::is_trivially_copyable_v<U>
+	friend auto memcpy(
+		const device_span<U> dest,
+		const device_span<U> src
+	) -> void;
+
+	template <typename U>
+		requires std::is_trivially_copyable_v<U>
 	friend auto copy_to_device(
 		const std::span<U> host,
 		const device_span<U> device
@@ -159,6 +166,23 @@ private:
 
 	friend class device_span<T>;
 };
+
+template <typename T>
+	requires std::is_trivially_copyable_v<T>
+auto memcpy(
+	const device_span<T> dest,
+	const device_span<T> src
+) -> void {
+	if (dest.size_bytes() != src.size_bytes()) {
+		throw new std::runtime_error("hipMemcpy (device to device) failed, differing sizes");
+	}
+	T *from = src.data_;
+	T *to = dest.data_;
+	auto err   = hipMemcpy(to, from, dest.size_bytes(), hipMemcpyDeviceToDevice);
+	if (err != hipSuccess) {
+		throw new std::runtime_error("hipMemcpy (to device) failed");
+	}
+}
 
 template <typename T>
 	requires std::is_trivially_copyable_v<T>
