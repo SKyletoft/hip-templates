@@ -65,19 +65,35 @@ public:
 	}
 
 	[[nodiscard]] __host__ __device__ constexpr auto get_index(size_type x, size_type y) const -> size_type {
+#ifndef __HIP_DEVICE_COMPILE__
+		if (x >= width_ || y >= height_) {
+			throw std::out_of_range("Index out of bounds in get_index");
+		}
+#endif
 		return y * pitch_ + x;
 	}
 
 	[[nodiscard]] constexpr auto row(size_type y) const -> device_span<T> {
+#ifndef __HIP_DEVICE_COMPILE__
+		if (y >= height_) {
+			throw std::out_of_range("Row index out of bounds");
+		}
+#endif
 		return device_span<T>(this->data_ + y * pitch_, width_);
 	}
 
-	[[nodiscard]] constexpr auto subspan2(
+	[[nodiscard]] __host__ __device__ constexpr auto subspan2(
 		size_type x_offset,
 		size_type y_offset,
 		size_type width,
 		size_type height
-	) const noexcept -> device_span2<T> {
+	) const -> device_span2<T> {
+#ifndef __HIP_DEVICE_COMPILE__
+		if ((x_offset + width) > width_ || (y_offset + height) > height_) {
+			throw std::out_of_range("Out of bounds subspan");
+		}
+#endif
+
 		return device_span2<T>(
 			this->data_ + y_offset * pitch_ + x_offset,
 			width,
