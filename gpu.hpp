@@ -1,6 +1,6 @@
 #pragma once
 
-#include <hip/hip_runtime.h>
+#include "runtime.hpp"
 
 #define TEMPLATE_COPYABLE(T) template <typename T> requires std::is_trivially_copyable_v<T>
 
@@ -74,7 +74,7 @@ public:
 		size_type offset,
 		size_type count
 	) const -> device_span<T> {
-#ifndef __HIP_DEVICE_COMPILE__
+#ifndef __HIP_DEVICE_COMPILE__ || __CUDA_ARCH__
 		if ((offset + count) > size_) {
 			throw std::out_of_range("Out of bounds subspan");
 		}
@@ -83,7 +83,7 @@ public:
 	}
 
 	[[nodiscard]] constexpr auto first(size_type count) const -> device_span<T> {
-#ifndef __HIP_DEVICE_COMPILE__
+#ifndef __HIP_DEVICE_COMPILE__ || __CUDA_ARCH__
 		if (count > size_) {
 			throw std::out_of_range("Count exceeds span size in first");
 		}
@@ -92,7 +92,7 @@ public:
 	}
 
 	[[nodiscard]] constexpr auto last(size_type count) const -> device_span<T> {
-#ifndef __HIP_DEVICE_COMPILE__
+#ifndef __HIP_DEVICE_COMPILE__ || __CUDA_ARCH__
 		if (count > size_) {
 			throw std::out_of_range("Count exceeds span size in last");
 		}
