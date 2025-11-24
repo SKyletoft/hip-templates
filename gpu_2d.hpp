@@ -81,6 +81,7 @@ public:
 		if (x >= width_ || y >= height_) {
 			throw std::out_of_range("Index out of bounds in get_index");
 		}
+		return y * width_ + x;
 #endif
 		return y * pitch_ + x;
 	}
@@ -161,7 +162,7 @@ public:
 		}
 
 		this->pitch_ = pitch_bytes / sizeof(T);
-		this->size_ = this->height_ * this->pitch_;
+		this->size_  = this->height_ * this->pitch_;
 	}
 
 	device_unique_ptr2(const device_unique_ptr2 &) = delete;
@@ -230,7 +231,7 @@ auto copy_to_device(
 	const std::span<U> host,
 	const device_span2<U> device
 ) -> void {
-	if (host.size_bytes() != device.size_bytes()) {
+	if (host.size_bytes() != device.width() * device.height() * sizeof(U)) {
 		throw std::invalid_argument("hipMemcpy2D (host to device) failed, differing sizes");
 	}
 
@@ -257,8 +258,8 @@ auto copy_to_host(
 	const std::span<U> host,
 	const device_span2<U> device
 ) -> void {
-	if (host.size_bytes() != device.size_bytes()) {
-		throw std::invalid_argument("hipMemcpy2D (host to device) failed, differing sizes");
+	if (host.size_bytes() != device.width() * device.height() * sizeof(U)) {
+		throw std::invalid_argument("hipMemcpy2D (device to host) failed, differing sizes");
 	}
 
 	U *host_ptr = host.data();
