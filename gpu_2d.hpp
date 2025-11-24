@@ -56,17 +56,29 @@ public:
 	[[nodiscard]] constexpr auto height() const noexcept -> size_type { return height_; }
 	[[nodiscard]] constexpr auto pitch() const noexcept -> size_type { return pitch_; }
 
-	[[nodiscard]] __device__ constexpr auto operator[](size_type x, size_type y) -> T& {
-		return this->data_[get_index(x, y)];
+	[[nodiscard]] __device__ constexpr auto operator[](size_type y, size_type x) -> T& {
+		return this->data_[get_index(y, x)];
 	}
 
-	[[nodiscard]] __device__ constexpr auto operator[](size_type x, size_type y) const -> const T& {
-		return this->data_[get_index(x, y)];
+	[[nodiscard]] __device__ constexpr auto operator[](size_type y, size_type x) const -> const T& {
+		return this->data_[get_index(y, x)];
 	}
+
+	[[nodiscard]] __device__ constexpr auto operator()(size_type y, size_type x) -> T& {
+		return (*this)[y, x];
+	}
+
+	[[nodiscard]] __device__ constexpr auto operator()(size_type y, size_type x) const -> const T& {
+		return (*this)[y, x];
+	}
+
+	[[nodiscard]] __device__ constexpr auto operator[](size_t i) -> T & { return this->data_[i]; }
+
+	[[nodiscard]] __device__ constexpr auto operator[](size_t i) const -> T const & { return this->data_[i]; }
 
 	[[nodiscard]] constexpr auto in_bounds(size_t i, size_t j) const -> bool { return i < width_ && j < height_; }
 
-	[[nodiscard]] __host__ __device__ constexpr auto get_index(size_type x, size_type y) const -> size_type {
+	[[nodiscard]] __host__ __device__ constexpr auto get_index(size_type y, size_type x) const -> size_type {
 #ifndef __HIP_DEVICE_COMPILE__
 		if (x >= width_ || y >= height_) {
 			throw std::out_of_range("Index out of bounds in get_index");
