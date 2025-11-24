@@ -2,14 +2,14 @@
 
 #include <hip/hip_runtime.h>
 
+#define TEMPLATE_COPYABLE(T) template <typename T> requires std::is_trivially_copyable_v<T>
+
 namespace gpu {
 
-template <typename T>
-	requires std::is_trivially_copyable_v<T>
+TEMPLATE_COPYABLE(T)
 class device_unique_ptr;
 
-template <typename T>
-	requires std::is_trivially_copyable_v<T>
+TEMPLATE_COPYABLE(T)
 class device_span {
 public:
 	using element_type   = T;
@@ -96,29 +96,25 @@ public:
 		return device_span<T>(data_ + (size_ - count), count);
 	}
 
-	template <typename U>
-		requires std::is_trivially_copyable_v<U>
+	TEMPLATE_COPYABLE(U)
 	friend auto memcpy(
 		const device_span<U> dest,
 		const device_span<U> src
 	) -> void;
 
-	template <typename U>
-		requires std::is_trivially_copyable_v<U>
+	TEMPLATE_COPYABLE(U)
 	friend auto copy_to_device(
 		const std::span<U> host,
 		const device_span<U> device
 	) -> void;
 
-	template <typename U>
-		requires std::is_trivially_copyable_v<U>
+	TEMPLATE_COPYABLE(U)
 	friend auto copy_to_host(
 		const std::span<U> host,
 		const device_span<U> device
 	) -> void;
 
-	template <typename U>
-		requires std::is_trivially_copyable_v<U>
+	TEMPLATE_COPYABLE(U)
 	friend auto device_memset(device_span<U> device, int val) -> void;
 
 	friend class device_unique_ptr<T>;
@@ -184,8 +180,7 @@ private:
 	friend class device_span<T>;
 };
 
-template <typename T>
-	requires std::is_trivially_copyable_v<T>
+TEMPLATE_COPYABLE(T)
 auto memcpy(
 	const device_span<T> dest,
 	const device_span<T> src
@@ -201,8 +196,7 @@ auto memcpy(
 	}
 }
 
-template <typename T>
-	requires std::is_trivially_copyable_v<T>
+TEMPLATE_COPYABLE(T)
 auto copy_to_device(
 	const std::span<T> host,
 	const device_span<T> device
@@ -218,8 +212,7 @@ auto copy_to_device(
 	}
 }
 
-template <typename T>
-	requires std::is_trivially_copyable_v<T>
+TEMPLATE_COPYABLE(T)
 auto copy_to_host(
 	const std::span<T> host,
 	const device_span<T> device
@@ -235,8 +228,7 @@ auto copy_to_host(
 	}
 }
 
-template <typename T>
-	requires std::is_trivially_copyable_v<T>
+TEMPLATE_COPYABLE(T)
 auto device_memset(device_span<T> device, int val) -> void {
 	auto err = hipMemset(device.data_, val, device.size_ * sizeof(T));
 	if (err != hipSuccess) {
