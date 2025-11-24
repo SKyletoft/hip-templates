@@ -15,8 +15,8 @@ public:
 	using element_type   = T;
 	using value_type     = std::remove_cv_t<T>;
 	using size_type      = std::size_t;
-	using pointer        = T *;
-	using const_pointer  = const T *;
+	using pointer        = std::conditional_t<std::is_const_v<T>, T * __restrict__, T *>;
+	using const_pointer  = std::conditional_t<std::is_const_v<T>, const T * __restrict__, const T *>;
 	using iterator       = pointer;
 	using const_iterator = const_pointer;
 
