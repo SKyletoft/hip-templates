@@ -30,7 +30,7 @@ public:
 		size_type height,
 		size_type pitch
 	) noexcept
-		: base(ptr, width * height)
+		: base(ptr, pitch * height)
 		, width_(width)
 		, height_(height)
 		, pitch_(pitch)
@@ -38,7 +38,7 @@ public:
 
 	constexpr device_span2(const device_unique_ptr2<std::remove_const_t<T>> &ptr) noexcept
 		requires std::is_const_v<T>
-		: base(ptr.data_, ptr.width_ * ptr.height_)
+		: base(ptr.data_, ptr.pitch_ * ptr.height_)
 		, width_(ptr.width_)
 		, height_(ptr.height_)
 		, pitch_(ptr.pitch_)
@@ -46,7 +46,7 @@ public:
 
 	constexpr device_span2(device_unique_ptr2<std::remove_const_t<T>> &ptr) noexcept
 		requires (!std::is_const_v<T>)
-		: base(ptr.data_, ptr.width_ * ptr.height_)
+		: base(ptr.data_, ptr.pitch_ * ptr.height_)
 		, width_(ptr.width_)
 		, height_(ptr.height_)
 		, pitch_(ptr.pitch_)
@@ -155,6 +155,7 @@ public:
 		}
 
 		this->pitch_ = pitch_bytes / sizeof(T);
+		this->size_ = this->height_ * this->pitch_;
 	}
 
 	device_unique_ptr2(const device_unique_ptr2 &) = delete;
