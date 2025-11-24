@@ -4,12 +4,10 @@
 
 namespace gpu {
 
-template <typename T>
-	requires std::is_trivially_copyable_v<T>
+TEMPLATE_COPYABLE(T)
 class device_unique_ptr2;
 
-template <typename T>
-	requires std::is_trivially_copyable_v<T>
+TEMPLATE_COPYABLE(T)
 class device_span2 : public device_span<T> {
 public:
 	using base = device_span<T>;
@@ -116,29 +114,25 @@ public:
 		);
 	}
 
-	template <typename U>
-		requires std::is_trivially_copyable_v<U>
+	TEMPLATE_COPYABLE(U)
 	friend auto copy_to_device(
 		const std::span<U> host,
 		const device_span2<U> device
 	) -> void;
 
-	template <typename U>
-		requires std::is_trivially_copyable_v<U>
+	TEMPLATE_COPYABLE(U)
 	friend auto copy_to_host(
 		const std::span<U> host,
 		const device_span2<U> device
 	) -> void;
 
-	template <typename U>
-		requires std::is_trivially_copyable_v<U>
+	TEMPLATE_COPYABLE(U)
 	friend auto device_memset(device_span2<U> device, int val) -> void;
 
 	friend class device_unique_ptr2<T>;
 };
 
-template <typename T>
-	requires std::is_trivially_copyable_v<T>
+TEMPLATE_COPYABLE(T)
 class device_unique_ptr2 : public device_span2<T> {
 public:
 	using base = device_span2<T>;
@@ -231,8 +225,7 @@ private:
 	friend class device_span2<T>;
 };
 
-template <typename U>
-	requires std::is_trivially_copyable_v<U>
+TEMPLATE_COPYABLE(U)
 auto copy_to_device(
 	const std::span<U> host,
 	const device_span2<U> device
@@ -259,8 +252,7 @@ auto copy_to_device(
 	}
 }
 
-template <typename U>
-	requires std::is_trivially_copyable_v<U>
+TEMPLATE_COPYABLE(U)
 auto copy_to_host(
 	const std::span<U> host,
 	const device_span2<U> device
@@ -287,8 +279,7 @@ auto copy_to_host(
 	}
 }
 
-template <typename U>
-	requires std::is_trivially_copyable_v<U>
+TEMPLATE_COPYABLE(U)
 auto device_memset(device_span2<U> device, int val) -> void {
 	auto err = hipMemset2D(
 		device.data_,
