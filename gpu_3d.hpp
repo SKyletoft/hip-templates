@@ -84,7 +84,7 @@ public:
 	}
 
 	[[nodiscard]] __host__ __device__ constexpr auto get_index(size_type x, size_type y, size_type z) const -> size_type {
-#ifndef __HIP_DEVICE_COMPILE__ || __CUDA_ARCH__
+#if !defined(__HIP_DEVICE_COMPILE__) && !defined(__CUDA_ARCH__)
 		if (x >= width_ || y >= height_ || z >= depth_) {
 			throw std::out_of_range("Index out of bounds in get_index");
 		}
@@ -93,7 +93,7 @@ public:
 	}
 
 	[[nodiscard]] constexpr auto slice(size_type z) const -> device_span2<T> {
-#ifndef __HIP_DEVICE_COMPILE__ || __CUDA_ARCH__
+#if !defined(__HIP_DEVICE_COMPILE__) && !defined(__CUDA_ARCH__)
 		if (z >= depth_) {
 			throw std::out_of_range("Slice index out of bounds");
 		}
@@ -107,7 +107,7 @@ public:
 	}
 
 	[[nodiscard]] constexpr auto row(size_type y, size_type z) const -> device_span<T> {
-#ifndef __HIP_DEVICE_COMPILE__ || __CUDA_ARCH__
+#if !defined(__HIP_DEVICE_COMPILE__) && !defined(__CUDA_ARCH__)
 		if (y >= height_ || z >= depth_) {
 			throw std::out_of_range("Row index out of bounds");
 		}
@@ -123,7 +123,7 @@ public:
 		size_type height,
 		size_type depth
 	) const -> device_span3<T> {
-#ifndef __HIP_DEVICE_COMPILE__ || __CUDA_ARCH__
+#if !defined(__HIP_DEVICE_COMPILE__) && !defined(__CUDA_ARCH__)
 		if ((x_offset + width) > width_ || (y_offset + height) > height_ || (z_offset + depth) > depth_) {
 			throw std::out_of_range("Out of bounds subspan");
 		}

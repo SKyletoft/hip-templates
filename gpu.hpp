@@ -74,7 +74,7 @@ public:
 		size_type offset,
 		size_type count
 	) const -> device_span<T> {
-#ifndef __HIP_DEVICE_COMPILE__ || __CUDA_ARCH__
+#if !defined(__HIP_DEVICE_COMPILE__) && !defined(__CUDA_ARCH__)
 		if ((offset + count) > size_) {
 			throw std::out_of_range("Out of bounds subspan");
 		}
@@ -83,7 +83,7 @@ public:
 	}
 
 	[[nodiscard]] constexpr auto first(size_type count) const -> device_span<T> {
-#ifndef __HIP_DEVICE_COMPILE__ || __CUDA_ARCH__
+#if !defined(__HIP_DEVICE_COMPILE__) && !defined(__CUDA_ARCH__)
 		if (count > size_) {
 			throw std::out_of_range("Count exceeds span size in first");
 		}
@@ -92,7 +92,7 @@ public:
 	}
 
 	[[nodiscard]] constexpr auto last(size_type count) const -> device_span<T> {
-#ifndef __HIP_DEVICE_COMPILE__ || __CUDA_ARCH__
+#if !defined(__HIP_DEVICE_COMPILE__) && !defined(__CUDA_ARCH__)
 		if (count > size_) {
 			throw std::out_of_range("Count exceeds span size in last");
 		}
