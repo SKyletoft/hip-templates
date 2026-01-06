@@ -1,15 +1,13 @@
 #pragma once
 
-#include "gpu.hpp"
+#include "gpu_2d.hpp"
 
 namespace gpu {
 
-template <typename T>
-	requires std::is_trivially_copyable_v<T>
+TEMPLATE_COPYABLE(T)
 class device_unique_ptr3;
 
-template <typename T>
-	requires std::is_trivially_copyable_v<T>
+TEMPLATE_COPYABLE(T)
 class device_span3 : public device_span<T> {
 public:
 	using base = device_span<T>;
@@ -138,29 +136,25 @@ public:
 		);
 	}
 
-	template <typename U>
-		requires std::is_trivially_copyable_v<U>
+	TEMPLATE_COPYABLE(U)
 	friend auto copy_to_device(
 		const std::span<U> host,
 		const device_span3<U> device
 	) -> void;
 
-	template <typename U>
-		requires std::is_trivially_copyable_v<U>
+	TEMPLATE_COPYABLE(U)
 	friend auto copy_to_host(
 		const std::span<U> host,
 		const device_span3<U> device
 	) -> void;
 
-	template <typename U>
-		requires std::is_trivially_copyable_v<U>
+	TEMPLATE_COPYABLE(U)
 	friend auto device_memset(device_span3<U> device, int val) -> void;
 
 	friend class device_unique_ptr3<T>;
 };
 
-template <typename T>
-	requires std::is_trivially_copyable_v<T>
+TEMPLATE_COPYABLE(T)
 class device_unique_ptr3 : public device_span3<T> {
 public:
 	using base = device_span3<T>;
@@ -273,7 +267,16 @@ auto copy_to_device(
 
 	const U *host_ptr = host.data();
 
-	hipMemcpy3DParms params = {0};
+	hipMemcpy3DParms params = {
+		.srcArray = {},
+		.srcPos = {},
+		.srcPtr = {},
+		.dstArray = {},
+		.dstPos = {},
+		.dstPtr = {},
+		.extent = {},
+		.kind = {}
+	};
 	params.srcPtr = make_hipPitchedPtr(
 		const_cast<U*>(host_ptr),
 		device.width_ * sizeof(U),
@@ -312,7 +315,16 @@ auto copy_to_host(
 
 	U *host_ptr = host.data();
 
-	hipMemcpy3DParms params = {0};
+	hipMemcpy3DParms params = {
+		.srcArray = {},
+		.srcPos = {},
+		.srcPtr = {},
+		.dstArray = {},
+		.dstPos = {},
+		.dstPtr = {},
+		.extent = {},
+		.kind = {}
+	};
 	params.srcPtr = make_hipPitchedPtr(
 		device.data_,
 		device.pitch_ * sizeof(U),

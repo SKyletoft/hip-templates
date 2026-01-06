@@ -217,6 +217,14 @@ auto copy_to_device(
 }
 
 TEMPLATE_COPYABLE(T)
+auto copy_to_device(
+	const std::span<const T> host,
+	const device_span<T> device
+) -> void {
+	gpu::copy_to_device(std::span<T>(const_cast<T*>(host.data()), host.size()), device);
+}
+
+TEMPLATE_COPYABLE(T)
 auto copy_to_host(
 	const std::span<T> host,
 	const device_span<T> device
@@ -230,6 +238,14 @@ auto copy_to_host(
 	if (err != hipSuccess) {
 		throw std::runtime_error("hipMemcpy (to host) failed");
 	}
+}
+
+TEMPLATE_COPYABLE(T)
+auto copy_to_host(
+	const std::span<T> host,
+	const device_span<const T> device
+) -> void {
+	gpu::copy_to_device(host, device_span<T>{device.data_, device.size()});
 }
 
 TEMPLATE_COPYABLE(T)
